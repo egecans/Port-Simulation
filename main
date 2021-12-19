@@ -1,0 +1,190 @@
+
+//DO_NOT_EDIT_ANYTHING_ABOVE_THIS_LINE
+
+package main;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import containers.BasicContainer;
+import containers.Container;
+import containers.HeavyContainer;
+import containers.LiquidContainer;
+import containers.RefrigeratedContainer;
+import ports.Port;
+import ships.Ship;
+
+public class Main {
+	public static void main(String[] args) throws FileNotFoundException {
+		
+		//
+		// Main receives two arguments: path to input file and path to output file.
+		// You can assume that they will always be provided, so no need to check them.
+		// Scanner and PrintStream are already defined for you.
+		// Use them to read input and write output.
+		// 
+		// Good Luck!
+		// 
+		
+		/** This new fields is for reading and processing the input from args and also writing it to the args.
+		 * 
+		 */
+		Scanner in = new Scanner(new File(args[0]));
+		PrintStream out = new PrintStream(new File(args[1]));
+		
+
+		
+		int N = in.nextInt();
+		ArrayList<Port> ports = new ArrayList<Port>() ;
+		ArrayList<Ship> ships = new ArrayList<Ship>() ;
+		
+		/** All the input is reading and processing in this loop
+		 * 
+		 */
+		for (int i = 0 ; i < N+1 ; i++) {
+			
+			String line = in.nextLine().trim();
+			
+			if (line.startsWith("1")) {
+				if (line.endsWith("R")) {
+					String split[] = line.split(" ", 4);
+					int portID = Integer.parseInt(split[1]);
+					int weight = Integer.parseInt(split[2]);
+					if (weight>0) {
+					ports.get(portID).containers.add(new RefrigeratedContainer(Container.getIDofcont(),weight)); 
+					}
+				}
+				else if (line.endsWith("L")) {
+					String split[] = line.split(" ", 4);
+					int portID = Integer.parseInt(split[1]);
+					int weight = Integer.parseInt(split[2]);
+					if (weight>0) {
+					ports.get(portID).containers.add(new LiquidContainer(Container.getIDofcont(),weight)); 
+					}
+				}
+				else {
+					String split[] = line.split(" ", 3);
+					int portID = Integer.parseInt(split[1]);
+					int weight = Integer.parseInt(split[2]);
+					if (weight>0) {
+					if (weight > 3000) {
+						ports.get(portID).containers.add(new HeavyContainer(Container.getIDofcont(),weight));
+						}
+					if (weight <=3000) {
+						ports.get(portID).containers.add(new BasicContainer(Container.getIDofcont(),weight));
+						}
+					}
+				}
+			}
+			if (line.startsWith("2")) {
+				String split[] = line.split(" ", 8);
+				int portID = Integer.parseInt(split[1]);
+				int totalWeightCapacity = Integer.parseInt(split[2]);
+				int maxNumberOfAllContainers = Integer.parseInt(split[3]);
+				int maxNumberOfHeavyContainers = Integer.parseInt(split[4]);
+				int maxNumberOfRefrigeratedContainers = Integer.parseInt(split[5]);
+				int maxNumberOfLiquidContainers = Integer.parseInt(split[6]);
+				double fuelConsumptionPerKM = Double.parseDouble(split[7]);
+				if (( fuelConsumptionPerKM > 0 ) && ( totalWeightCapacity > 0 ) && ( maxNumberOfAllContainers >= 0 ) && ( maxNumberOfHeavyContainers >= 0) 
+					&& (maxNumberOfRefrigeratedContainers >= 0 ) && ( maxNumberOfLiquidContainers >= 0)	) {
+				ships.add( new Ship(Ship.getIDofship(), ports.get(portID) , totalWeightCapacity, maxNumberOfAllContainers, maxNumberOfHeavyContainers, 
+						maxNumberOfRefrigeratedContainers, maxNumberOfLiquidContainers, fuelConsumptionPerKM ) );
+				}	
+			}
+			if (line.startsWith("3")) {
+				String split[] = line.split(" ", 3);
+				double X = Double.parseDouble(split[1]);
+				double Y = Double.parseDouble(split[2]);
+				ports.add(new Port(Port.getIDofport(), X, Y));
+			}
+			if (line.startsWith("4")) {
+				String split[] = line.split(" ", 3);
+				int ShipID = Integer.parseInt(split[1]);
+				int ContainerID = Integer.parseInt(split[2]);
+				int contIndex = ships.get(ShipID).getCurrentPort().getIndexofContainer(ContainerID);
+				if (contIndex != -1) {
+				ships.get(ShipID).load(ships.get(ShipID).getCurrentPort().containers.get(contIndex));
+				}
+			}
+			if (line.startsWith("5")) {
+				String split[] = line.split(" ", 3);
+				int ShipID = Integer.parseInt(split[1]);
+				int ContainerID = Integer.parseInt(split[2]);
+				int contIndex = ships.get(ShipID).getIndexofContainer(ContainerID);
+				if (contIndex != -1) {
+					ships.get(ShipID).unLoad(ships.get(ShipID).currentContainers.get(contIndex));
+				}
+			}
+			if (line.startsWith("6")) {
+				String split[] = line.split(" ", 3);
+				int ShipID = Integer.parseInt(split[1]);
+				int PortID = Integer.parseInt(split[2]);
+				ships.get(ShipID).sailTo(ports.get(PortID));
+			}
+			if (line.startsWith("7")) {
+				String split[] = line.split(" ", 3);
+				int ShipID = Integer.parseInt(split[1]);
+				double fuel = Double.parseDouble(split[2]);
+				ships.get(ShipID).reFuel(fuel);
+			}
+				
+	}
+
+
+			
+		/** All comments are writing in this loop
+		 * 	
+		 */
+
+		for (int i = 0; i<ports.size(); i++) {
+			out.println("Port " + i + ":" + " (" + String.format("%.2f",ports.get(i).getX()) + ", " + String.format("%.2f",ports.get(i).getY()) + ")");
+			if (!(ports.get(i).BasicContainers()).equals("BasicContainer:")) {
+				out.println("  " + ports.get(i).BasicContainers()); 
+			}
+			if (!(ports.get(i).HeavyContainers()).equals("HeavyContainer:")) {
+				out.println("  " + ports.get(i).HeavyContainers()); 
+				}
+			if (!(ports.get(i).RefrigeratedContainers()).equals("RefrigeratedContainer:")) {
+				out.println("  " + ports.get(i).RefrigeratedContainers()); 
+				}
+			if (!(ports.get(i).LiquidContainers()).equals("LiquidContainer:")) {
+				out.println("  " + ports.get(i).LiquidContainers()); 
+				}
+			for (int j = 0; j<ports.get(i).current.size(); j++) {
+				out.println("  Ship " +  ports.get(i).sortedShips(ports.get(i).current).get(j).getID() + ": " + String.format("%.2f",ports.get(i).sortedShips(ports.get(i).current).get(j).getFuel()));
+				if (! (ports.get(i).sortedShips(ports.get(i).current).get(j).BasicContainers()).equals("BasicContainer:")) {
+					out.println("    "  + ports.get(i).sortedShips(ports.get(i).current).get(j).BasicContainers()); 
+					}
+					if (!(ports.get(i).sortedShips(ports.get(i).current).get(j).HeavyContainers()).equals("HeavyContainer:")) {
+						out.println("    " + ports.get(i).sortedShips(ports.get(i).current).get(j).HeavyContainers()); 
+						}
+					if (!(ports.get(i).sortedShips(ports.get(i).current).get(j).RefrigeratedContainers()).equals("RefrigeratedContainer:")) {
+						out.println("    " + ports.get(i).sortedShips(ports.get(i).current).get(j).RefrigeratedContainers()); 
+						}
+					if (!(ports.get(i).sortedShips(ports.get(i).current).get(j).LiquidContainers()).equals("LiquidContainer:")) {
+						out.println("    "  + ports.get(i).sortedShips(ports.get(i).current).get(j).LiquidContainers()); 
+						}
+			}
+		}
+			
+			
+		
+		
+		
+		
+		
+		in.close();
+		out.close();
+		
+	}
+
+
+}
+
+
+
+//DO_NOT_EDIT_ANYTHING_BELOW_THIS_LINE
+
